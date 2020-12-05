@@ -28,3 +28,7 @@ Una serie e' **completa** nel periodo 2013-2019 se:
   
   *Questi criteri possono essere ritenuti validi per tutti gli inquinanti?*
   
+  # Risultati
+  
+  - [Risultati NO2](./no2.md)
+  
