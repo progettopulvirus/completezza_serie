@@ -1,0 +1,124 @@
+---
+title: Completezza serie NO2
+date: "`r lubridate::today()`"
+author: ISPRA
+params:
+  meseFinale2020: "Giugno"
+  inquinante: "no2"
+---
+
+```{r intro,include=FALSE,warning=FALSE,message=FALSE,echo=FALSE} 
+#rm(list=objects())
+library("tidyverse")
+library("skimr")
+library("visdat")
+library("knitr")
+library("formattable")
+library("DT")
+library("scico")
+
+knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
+params$inquinante->inquinante
+```
+
+```{r stazioniValidePerRegione}
+read_delim(glue::glue("numeroStazioniValidePerRegione_{inquinante}.csv"),delim=";",col_names = FALSE)->stazioniPerRegione
+names(stazioniPerRegione)<-c("regione","nStaz")
+```
+
+```{r,eval=FALSE}
+format_table(stazioniPerRegione)
+```
+
+```{r barplot_stazioniValidePerRegione}
+ggplot(data=stazioniPerRegione,aes(x=regione,y=nStaz))+
+  geom_bar(stat="identity",fill="lightblue")+
+  geom_text(aes(x=regione,y=nStaz+2,label=nStaz))+
+  xlab("")+
+  ylab("n°")+
+  theme_bw()+
+  theme(text=element_text(family="Lato",angle=90,hjust = 1))->grafico
+
+print(grafico)
+``` 
+
+
+
+
+### Tipologia di problema
+
+- **NessunaStagioneValida**: stazioni senza stagioni valide
+
+- **Nessun_Anno_Valido_2013_2019**: stazioni senza anni validi
+
+- **Pochi anni validi**: stazioni prive di uno o piu' anni nel periodo 2016-2019
+
+- **2020 non disponibile**: stazioni prive di dati per l'anno 2020
+
+- **2020 non completo**: stazioni non complete a nel periodo Gennaio - `r params$meseFinale2020` 2020
+
+```{r tipologiaErrore}
+read_delim(glue::glue("stazioniNonValide_{inquinante}.csv"),delim=";",col_names = FALSE)->nonValide
+names(nonValide)<-c("station_eu_code","errore","regione")
+
+read_delim(glue::glue("stazioniValide_{inquinante}.csv"),delim=";",col_names = FALSE)->valide
+names(valide)<-c("station_eu_code","regione")
+
+```
+
+```{r barplot_tipologiaErrore,fig.height=15,fig.width=15}
+
+nonValide %>%
+  mutate(errore=str_remove(errore,"\\([0-9]\\)")) %>%
+  group_by(regione,errore) %>%
+  summarise(totale=n()) %>%
+  ungroup() %>%
+  mutate(regione=factor(regione))->totali
+
+ggplot(data=totali,aes(x=errore,y=totale))+
+  geom_bar(stat="identity",aes(fill=errore))+
+  scale_fill_scico_d(palette = "roma")+
+  facet_wrap(~regione,ncol = 3)+
+  xlab("")+
+  ylab("n° stazioni non valide")+
+  theme_bw()+
+  theme(text=element_text(family="Lato"),
+        axis.text.x.bottom = element_text(angle=90,hjust = 1),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())->grafico
+
+print(grafico)
+```
+
+```{r datiPerTabelle}
+valide$selezionata<-"Serie valida"
+valide$errore<-""
+nonValide$selezionata<-"Serie scartata"
+
+bind_rows(valide,nonValide)->stazioni
+```
+
+### Serie Valide vs Serie Scartate
+
+Numero totale di serie disponibili: `r nrow(stazioni)`
+
+```{r}
+stazioni %>%
+  group_by(selezionata) %>%
+  summarise(totale=n()) %>%
+  ungroup() %>%
+  kable()
+```
+
+#### Distribuzione per regioni
+
+```{r}
+stazioni %>%
+  group_by(selezionata,regione) %>%
+  summarise(totale=n()) %>%
+  ungroup() %>%
+  spread(key=selezionata,value=totale,fill = 0)%>%
+  arrange(regione) %>%
+  formattable(list(`Serie scartata`=color_bar("firebrick"),`Serie valida`=color_bar("lightblue")))
+```

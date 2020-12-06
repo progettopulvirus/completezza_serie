@@ -1,0 +1,33 @@
+---
+title: Completezza serie NO2
+date: "`r lubridate::today()`"
+author: ISPRA
+---
+
+```{r intro,include=FALSE,warning=FALSE,message=FALSE,echo=FALSE} 
+#rm(list=objects())
+library("tidyverse")
+library("skimr")
+library("visdat")
+library("knitr")
+
+knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
+```
+
+```{r visMiss,fig.width=12,fig.height=8}
+
+list.files(pattern="^completezza.+csv$")->ffile
+purrr::map(ffile,.f=function(nomeFile){ 
+  
+  read_delim(nomeFile,delim=";",col_names=TRUE)->dati
+  
+  
+  str_replace(str_remove(str_remove(nomeFile,".csv"),"completezzaAnni_"),"_"," ")->titolo
+
+  vis_miss(dati %>% arrange(yy) %>% dplyr::select(-yy),cluster =FALSE)+
+    labs(title=titolo)+
+    ylab("anni validi")->grafico
+  
+})
+```
+

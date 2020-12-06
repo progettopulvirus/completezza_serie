@@ -1,0 +1,57 @@
+---
+title: Completezza serie NO2
+date: "`r lubridate::today()`"
+author: ISPRA
+params:
+  meseFinale2020: "Giugno"
+  inquinante: "no2"
+---
+
+```{r intro,include=FALSE,warning=FALSE,message=FALSE,echo=FALSE} 
+#rm(list=objects())
+library("tidyverse")
+library("skimr")
+library("visdat")
+library("knitr")
+library("formattable")
+library("DT")
+library("scico")
+
+knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
+params$inquinante->inquinante
+```
+
+
+### Tipologia di problema
+
+- **NessunaStagioneValida**: stazioni senza stagioni valide
+
+- **Nessun_Anno_Valido_2013_2019**: stazioni senza anni validi
+
+- **Pochi anni validi**: stazioni prive di uno o piu' anni nel periodo 2016-2019
+
+- **2020 non disponibile**: stazioni prive di dati per l'anno 2020
+
+- **2020 non completo**: stazioni non complete a nel periodo Gennaio - `r params$meseFinale2020` 2020
+
+```{r tipologiaErrore}
+read_delim(glue::glue("stazioniNonValide_{inquinante}.csv"),delim=";",col_names = FALSE)->nonValide
+names(nonValide)<-c("station_eu_code","errore","regione")
+
+read_delim(glue::glue("stazioniValide_{inquinante}.csv"),delim=";",col_names = FALSE)->valide
+names(valide)<-c("station_eu_code","regione")
+
+```
+
+
+```{r datiPerTabelle}
+valide$selezionata<-"Serie valida"
+valide$errore<-""
+nonValide$selezionata<-"Serie scartata"
+
+bind_rows(valide,nonValide)->stazioni
+```
+
+```{r DT}
+DT::datatable(stazioni)
+```

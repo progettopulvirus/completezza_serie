@@ -1,0 +1,74 @@
+---
+title: Completezza serie NO2, alluvial plot
+date: "`r lubridate::today()`"
+author: ISPRA
+params:
+  meseFinale2020: "Giugno"
+  inquinante: "no2"
+---
+
+```{r intro,include=FALSE,warning=FALSE,message=FALSE,echo=FALSE} 
+#rm(list=objects())
+library("tidyverse")
+library("skimr")
+library("visdat")
+library("knitr")
+library("formattable")
+library("DT")
+library("scico")
+library("ggalluvial")
+
+knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
+params$inquinante->inquinante
+```
+
+
+```{r tipologiaErrore}
+read_delim(glue::glue("stazioniNonValide_{inquinante}.csv"),delim=";",col_names = FALSE)->nonValide
+names(nonValide)<-c("station_eu_code","errore","regione")
+
+read_delim(glue::glue("stazioniValide_{inquinante}.csv"),delim=";",col_names = FALSE)->valide
+names(valide)<-c("station_eu_code","regione")
+
+```
+
+
+```{r datiPerTabelle}
+valide$selezionata<-"Serie valida"
+valide$errore<-""
+nonValide$selezionata<-"Serie scartata"
+
+bind_rows(valide,nonValide)->stazioni
+stazioni[nchar(stazioni$errore)==0,]$errore<-"Valida"
+
+stazioni %>%
+  mutate(Pochi_anni_validi=ifelse(grepl("Pochi_anni_validi",errore),"Pochi_anni_validi","Numero_anni_validi_ok")) %>%
+   mutate(non_disponibile_2020=ifelse(grepl("2020 non disponibile",errore),"non_disponibile_2020","disponibile_2020")) %>%
+     mutate(NessunaStagioneValida=ifelse(grepl("NessunaStagioneValida",errore),"NessunaStagioneValida","StagioniValide")) %>%
+      mutate(non_completo_2020=ifelse(grepl("2020 non completo",errore),"non_completo_2020","completo_2020")) %>%
+        mutate(Nessun_Anno_Valida_2013_2019=ifelse(grepl("Nessun_Anno_Valida_2013_2019",errore),"Nessun_Anno_Valida_2013_2019","2016_2019_ok"))->stazioni2
+
+stazioni2 %>%
+  dplyr::select(-station_eu_code,-errore) %>%
+  group_by(regione,selezionata,Pochi_anni_validi,non_disponibile_2020,non_completo_2020,NessunaStagioneValida,Nessun_Anno_Valida_2013_2019) %>%
+  summarise(Freq=n()) %>%
+  ungroup()->stazioni3
+
+```
+
+```{r alluvium,fig.width=20,fig.height=10}
+ggplot(data=stazioni3,aes(axis1=regione,
+                          axis2=NessunaStagioneValida,
+                          axis3=Nessun_Anno_Valida_2013_2019,
+                          axis4=Pochi_anni_validi,
+                          axis5=non_disponibile_2020,
+                          axis6=non_completo_2020,
+                          axis7=selezionata,
+                          y=Freq))+
+  geom_alluvium(aes(fill=non_disponibile_2020))+
+  geom_stratum()+
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)))+
+  xlab("Criteri di selezione delle serie")+
+  theme_minimal()+
+  theme(text=element_text(family="Lato",size=5))
+```

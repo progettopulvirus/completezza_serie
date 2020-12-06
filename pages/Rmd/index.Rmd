@@ -1,0 +1,8 @@
+---
+title: Completezza serie NO2
+date: "`r lubridate::today()`"
+author: ISPRA
+---
+
+[Risultati serieNO2](./no2/index_no2.html)
+

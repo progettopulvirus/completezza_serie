@@ -1,0 +1,14 @@
+---
+title: Completezza serie NO2
+date: "`r lubridate::today()`"
+author: ISPRA
+---
+
+
+- [Risultati selezione delle serie in base a criteridi completezza](./selezionaSerieComplete_2.html)
+
+- [Serie selezionate:  vis_miss](./selezionaSerieComplete_visMiss.html)
+
+- [Codici delle stazioni valide e scartate](./selezionaSerieComplete_codiciStazioni.html)
+
+- [Alluvial plot: processo di selezione delle serie](./selezionaSerieComplete_alluvialPlot.html)
