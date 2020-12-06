@@ -1,4 +1,5 @@
-[Risultati](https://pulvirus.github.io/completezza_serie/no2/index_no2.html) criteri di selezione serie di NO2
+[Risultati](https://pulvirus.github.io/completezza_serie/no2/selezionaSerieComplete_2.html) selezione delle serie in base a criteridi completezza
+
 
 # Mappa stazioni selezionate
 
