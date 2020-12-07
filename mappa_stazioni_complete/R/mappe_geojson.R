@@ -1,8 +1,9 @@
 rm(list=objects())
 library("tidyverse")
 library("geojsonio")
+library("sf")
 
-PARAM<-"NO2"
+PARAM<-"pm10"
 
 read_delim("ana.csv",delim=";",col_names = TRUE)->ana
 
