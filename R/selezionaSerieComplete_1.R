@@ -6,7 +6,7 @@ library("furrr")
 library("visdat")
 library("lubridate")
 ##plan(multicore,workers=20)
-
+options(error=browser)
 
 ### parametri
 PARAM<-"no2"
@@ -86,8 +86,11 @@ purrr::partial(valida,param=PARAM)->valida
 
 ### Inizio programma
 
+left_join(datiTutti,ana[,c("station_eu_code","regione")])->datiTutti
 
 purrr::walk(unique(ana$regione),.f=function(nomeRegione){ 
+  
+    print(nomeRegione)
 
     datiTutti %>%
       filter(regione==nomeRegione)->dati
