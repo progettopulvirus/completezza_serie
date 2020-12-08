@@ -1,5 +1,5 @@
 ---
-title: Completezza serie NO2, alluvial plot
+title: Completezza serie inquinanti, alluvial plot
 date: "`r lubridate::today()`"
 author: ISPRA
 params:
@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
 params$inquinante->inquinante
 ```
 
+# `r inquinante`
 
 ```{r tipologiaErrore}
 read_delim(glue::glue("stazioniNonValide_{inquinante}.csv"),delim=";",col_names = FALSE)->nonValide
@@ -65,9 +66,33 @@ ggplot(data=stazioni3,aes(axis1=regione,
                           axis6=non_completo_2020,
                           axis7=selezionata,
                           y=Freq))+
-  geom_alluvium(aes(fill=non_disponibile_2020))+
-  geom_stratum()+
+  geom_alluvium(aes(fill=regione))+
+  geom_stratum(width = 0.1,fill="lightgray")+
   geom_text(stat = "stratum", aes(label = after_stat(stratum)))+
+  scale_fill_scico_d(palette = "vikO")+
+  xlab("Criteri di selezione delle serie")+
+  theme_minimal()+
+  theme(text=element_text(family="Lato",size=5))
+```
+
+
+```{r alluvium2,fig.width=20,fig.height=10}
+
+stazioni3 %>%
+  mutate(regione2=ifelse(grepl("PIEMONTE",regione),"1","0"))->stazioni3
+
+ggplot(data=stazioni3,aes(axis1=regione,
+                          axis2=NessunaStagioneValida,
+                          axis3=Nessun_Anno_Valida_2013_2019,
+                          axis4=Pochi_anni_validi,
+                          axis5=non_disponibile_2020,
+                          axis6=non_completo_2020,
+                          axis7=selezionata,
+                          y=Freq))+
+  geom_alluvium(aes(fill=regione2))+
+  geom_stratum(width = 0.1,fill="lightgray")+
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)))+
+  scale_fill_scico_d(palette = "bamako")+
   xlab("Criteri di selezione delle serie")+
   theme_minimal()+
   theme(text=element_text(family="Lato",size=5))

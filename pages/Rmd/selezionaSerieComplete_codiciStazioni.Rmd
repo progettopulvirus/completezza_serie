@@ -1,5 +1,5 @@
 ---
-title: Completezza serie NO2
+title: Completezza serie inquinanti
 date: "`r lubridate::today()`"
 author: ISPRA
 params:
@@ -21,6 +21,8 @@ knitr::opts_chunk$set(echo=FALSE,message = FALSE,warning = FALSE,include=TRUE)
 params$inquinante->inquinante
 ```
 
+
+# `r inquinante`
 
 ### Tipologia di problema
 
