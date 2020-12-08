@@ -2,7 +2,7 @@
 
 [Grafici vis_miss](https://pulvirus.github.io/completezza_serie/no2/selezionaSerieComplete_visMiss.html) delle serie selezionate (i grafici mostrano che, come richiesto, eventuali anni non validi, riguardano il triennio 2013-2015).
 
-[Mappa](../mappa_stazioni_complete/no2/stazioniComplete_NO2.geojson) delle stazioni selezionate.
+[Mappa](../mappa_stazioni_complete/no2/stazioniComplete_no2.geojson) delle stazioni selezionate.
 
 [Codici stazioni NO2](https://pulvirus.github.io/completezza_serie/no2/selezionaSerieComplete_codiciStazioni.html): per ogni stazione viene indicato se si tratta di una stazione valida o il motivo per cui e' stata scartata.
 
