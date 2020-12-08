@@ -8,6 +8,12 @@ library("lubridate")
 ##plan(multicore,workers=20)
 options(error=browser)
 
+#serie valide ma non in raf-170. Verificato chesono valide
+#IT1121A;PIEMONTE
+#IT1826A;LOMBARDIA
+#IT1193A;BASILICATA
+
+
 ### parametri
 PARAM<-"no2"
 
@@ -101,6 +107,9 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
     #Ciclo su codici delle stazioni della regione 
     purrr::map(unique(dati$station_eu_code),.f=function(codice){ 
       
+    
+    #if(codice=="IT1193A") browser()
+      
       dati %>%
         filter(station_eu_code==codice)->subDati
       
@@ -125,7 +134,7 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
       
       #aggiungo stagione  
       ndati %>%
-        mutate(seas=case_when(mm %in% c(1,2,11)~1,
+        mutate(seas=case_when(mm %in% c(1,2,12)~1,
                               mm %in% c(3,4,5)~2,
                               mm %in% c(6,7,8)~3,
                               TRUE~4)) %>%
@@ -177,7 +186,7 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
         return()
       }
     
-      sum(annoFinale$meseValido)->somma 
+      sum(annoFinale[annoFinale$mm %in% (1:NUMERO_MESI_VALIDI_ULTIMO_ANNO),]$meseValido)->somma 
     
       #2020 non suff. completo  
       if(somma<NUMERO_MESI_VALIDI_ULTIMO_ANNO){
