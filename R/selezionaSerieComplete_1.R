@@ -15,7 +15,7 @@ options(error=browser)
 
 
 ### parametri
-PARAM<-"pm10"
+PARAM<-"nox"
 
 annoI<-2013
 annoF<-2020
@@ -96,7 +96,7 @@ left_join(datiTutti,ana[,c("station_eu_code","regione")])->datiTutti
 
 purrr::walk(unique(ana$regione),.f=function(nomeRegione){ 
   
-    print(nomeRegione)
+
 
     datiTutti %>%
       filter(regione==nomeRegione)->dati
@@ -224,8 +224,12 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
     dati %>%
       filter(station_eu_code %in% codiciStazioniSelezionate)->daScrivere
     
-    if(nrow(daScrivere)) write_delim(daScrivere,file=glue::glue("{PARAM}_{nomeRegione}.csv"),delim=";",col_names = TRUE)
-    
+    if(nrow(daScrivere)){
+      tolower(nomeRegione)->nomeDir
+      str_remove_all(nomeDir,pattern="_")->nomeDir
+      if(!dir.exists(nomeDir)) dir.create(nomeDir)
+      write_delim(daScrivere,file=glue::glue("./{nomeDir}/{PARAM}_{nomeDir}.csv"),delim=";",col_names = TRUE)
+    }  
     
     #i nomi del detaframe sono le stazioni valide
     write_delim(dfFinale,glue::glue("completezzaAnni_{PARAM}_{nomeRegione}.csv"),delim=";",col_names = TRUE)
