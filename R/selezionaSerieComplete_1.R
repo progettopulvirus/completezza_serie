@@ -15,7 +15,7 @@ options(error=browser)
 
 
 ### parametri
-PARAM<-"no2"
+PARAM<-"pm10"
 
 annoI<-2013
 annoF<-2020
@@ -37,10 +37,10 @@ SOGLIA_GIORNI_VALIDI<-floor(numeroGiorni*0.75)
 
 if(file.exists(glue::glue("stazioniNonValide_{PARAM}.csv"))) file.remove(glue::glue("stazioniNonValide_{PARAM}.csv"))
 if(file.exists(glue::glue("stazioniValide_{PARAM}.csv"))) file.remove(glue::glue("stazioniValide_{PARAM}.csv"))
-
-if(file.exists(glue::glue("{PARAM}.csv"))){ 
+if(file.exists(glue::glue("numeroStazioniValidePerRegione_{PARAM}.csv"))) file.remove(glue::glue("numeroStazioniValidePerRegione_{PARAM}.csv"))
   
-
+if(file.exists(glue::glue("{PARAM}.csv"))){ 
+    
   read_delim(glue::glue("{PARAM}.csv"),delim=";",col_names = TRUE,col_types = cols(value=col_double()))->datiTutti
   read_delim(glue::glue("ana.csv"),delim=";",col_names = TRUE)->ana
   
@@ -171,7 +171,7 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
         return()  
       } 
       
-      if(!(all(2016:2019 %in%  ndati3$yy)) ){ 
+      if(!(all((2016:2019) %in%  ndati3$yy)) ){ 
         nonValida(codice,regione=nomeRegione,error=paste0("Pochi_anni_validi (",numeroAnniValidi,")" ))
         return()  
       }
@@ -216,6 +216,15 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
       
     ##### Fine mappa stazioni
     purrr::reduce(listaOut,full_join)->dfFinale
+    
+
+    
+    names(dfFinale)[!grepl("^yy",names(dfFinale))]->codiciStazioniSelezionate
+    
+    dati %>%
+      filter(station_eu_code %in% codiciStazioniSelezionate)->daScrivere
+    
+    if(nrow(daScrivere)) write_delim(daScrivere,file=glue::glue("{PARAM}_{nomeRegione}.csv"),delim=";",col_names = TRUE)
     
     
     #i nomi del detaframe sono le stazioni valide
