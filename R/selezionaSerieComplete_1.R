@@ -1,3 +1,5 @@
+#Per utilizzare la funzione che crea i pacchetti R con tutti gli inquinanti, questo programma va fatto girare nella stessa directory per tutti gli inquinanti.
+#Per ogni regione viene creata una directory al cui interno vengono salvati i dati con gli inquinanti disponibili
 rm(list=objects())
 library("tidyverse")
 library("RPostgreSQL")
@@ -15,7 +17,7 @@ options(error=browser)
 
 
 ### parametri
-PARAM<-"nox"
+PARAM<-"v_pm25"
 
 annoI<-2013
 annoF<-2020
