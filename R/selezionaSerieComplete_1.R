@@ -17,7 +17,8 @@ options(error=browser)
 
 
 ### parametri
-PARAM<-"v_pm25"
+PARAM_vista<-"v_pm10"
+PARAM<-str_remove(PARAM_vista,"v_")
 
 annoI<-2013
 annoF<-2020
@@ -52,7 +53,7 @@ if(file.exists(glue::glue("{PARAM}.csv"))){
   
   dbDriver("PostgreSQL")->mydrv
   dbConnect(drv=mydrv,dbname="pulvirus",host="10.158.102.164",port=5432,user="srv-pulvirus",password="pulvirus#20")->myconn
-  dbReadTable(conn=myconn,name = c(PARAM),)->datiTutti
+  dbReadTable(conn=myconn,name = c(PARAM_vista),)->datiTutti
   suppressWarnings({dbReadTable(conn=myconn,name = c("stazioni_aria"))->ana})
   dbDisconnect(myconn)
   
