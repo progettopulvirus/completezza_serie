@@ -17,7 +17,7 @@ options(error=browser)
 
 
 ### parametri
-PARAM_vista<-"v_pm10"
+PARAM_vista<-"v_nox"
 PARAM<-str_remove(PARAM_vista,"v_")
 
 annoI<-2013
@@ -225,13 +225,15 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
     names(dfFinale)[!grepl("^yy",names(dfFinale))]->codiciStazioniSelezionate
     
     dati %>%
+      mutate(dd=lubridate::day(date)) %>%
+      dplyr::select(pollutant_fk,regione,station_eu_code,date,yy,mm,dd,value) %>%
       filter(station_eu_code %in% codiciStazioniSelezionate)->daScrivere
     
     if(nrow(daScrivere)){
       tolower(nomeRegione)->nomeDir
       str_remove_all(nomeDir,pattern="_")->nomeDir
       if(!dir.exists(nomeDir)) dir.create(nomeDir)
-      write_delim(daScrivere,file=glue::glue("./{nomeDir}/{PARAM}_{nomeDir}.csv"),delim=";",col_names = TRUE)
+       write_delim(daScrivere,file=glue::glue("./{nomeDir}/{PARAM}_{nomeDir}.csv"),delim=";",col_names = TRUE)
     }  
     
     #i nomi del detaframe sono le stazioni valide
