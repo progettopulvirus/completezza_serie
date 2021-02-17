@@ -7,6 +7,7 @@ library("sf")
 library("furrr")
 library("visdat")
 library("lubridate")
+library("seplyr")
 ##plan(multicore,workers=20)
 options(error=browser)
 
@@ -17,10 +18,10 @@ options(error=browser)
 
 
 ### parametri
-PARAM_vista<-c("v_pm10","v_pm25","v_no2","v_nox","v_c6h6","v_co","v_o3")
+PARAM_vista<-c("v_pm10","v_pm25","v_no2","v_nox","v_c6h6","v_co","v_o3")[7]
 PARAM<-str_remove(PARAM_vista,"v_")
 
-PARAM_O3<-c("o3_max_h_d","o3_max_mm8h_d")[2] 
+PARAM_O3<-c("o3_max_h_d","o3_max_mm8h_d")[1] 
 
 annoI<-2013
 annoF<-2020
