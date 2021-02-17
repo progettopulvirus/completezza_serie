@@ -17,8 +17,10 @@ options(error=browser)
 
 
 ### parametri
-PARAM_vista<-"v_nox"
+PARAM_vista<-c("v_pm10","v_pm25","v_no2","v_nox","v_c6h6","v_co","v_o3")
 PARAM<-str_remove(PARAM_vista,"v_")
+
+PARAM_O3<-c("o3_max_h_d","o3_max_mm8h_d")[2] 
 
 annoI<-2013
 annoF<-2020
@@ -57,6 +59,19 @@ if(file.exists(glue::glue("{PARAM}.csv"))){
   suppressWarnings({dbReadTable(conn=myconn,name = c("stazioni_aria"))->ana})
   dbDisconnect(myconn)
   
+  
+  
+  
+  if(PARAM=="o3"){ 
+
+    datiTutti %>%
+      seplyr::rename_se(c("value":=PARAM_O3)) %>%
+      dplyr::select(reporting_year,pollutant_fk,station_eu_code,date,value)->datiTutti
+    
+    PARAM<-PARAM_O3
+    
+  }
+    
   #le stringhe NA vengono lette come carattere
   suppressWarnings(mutate(datiTutti,value=as.double(value))->datiTutti)
   
@@ -99,17 +114,16 @@ left_join(datiTutti,ana[,c("station_eu_code","regione")])->datiTutti
 
 purrr::walk(unique(ana$regione),.f=function(nomeRegione){ 
   
-
-
+     
     datiTutti %>%
       filter(regione==nomeRegione)->dati
-
+  
     #La regione ha dati? 
     if(!nrow(dati)) return()
   
     #Ciclo su codici delle stazioni della regione 
     purrr::map(unique(dati$station_eu_code),.f=function(codice){ 
-      
+
     
     #if(codice=="IT1193A") browser()
       
@@ -223,13 +237,26 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
 
     
     names(dfFinale)[!grepl("^yy",names(dfFinale))]->codiciStazioniSelezionate
-    
+
     dati %>%
       mutate(dd=lubridate::day(date)) %>%
       dplyr::select(pollutant_fk,regione,station_eu_code,date,yy,mm,dd,value) %>%
       filter(station_eu_code %in% codiciStazioniSelezionate)->daScrivere
     
+    
+
+    
     if(nrow(daScrivere)){
+      
+      duplicated(x = daScrivere[,c("station_eu_code","date")])->osservazioniDuplicate
+
+      if(nrow(daScrivere[osservazioniDuplicate,])){ 
+        message("Trovate osservazioni duplicate, mi fermo!")
+        browser()
+        return()
+      }      
+      
+      
       tolower(nomeRegione)->nomeDir
       str_remove_all(nomeDir,pattern="_")->nomeDir
       if(!dir.exists(nomeDir)) dir.create(nomeDir)
@@ -239,5 +266,5 @@ purrr::walk(unique(ana$regione),.f=function(nomeRegione){
     #i nomi del detaframe sono le stazioni valide
     write_delim(dfFinale,glue::glue("completezzaAnni_{PARAM}_{nomeRegione}.csv"),delim=";",col_names = TRUE)
 
-    
+
 })#fine walk su regione 
